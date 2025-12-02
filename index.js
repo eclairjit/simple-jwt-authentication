@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const app = express();
-app.use(express.json());
+app.use(express.json()); // define that we are going to use json as request format
 
 const users = [];
 const refreshTokens = [];
@@ -32,19 +32,19 @@ function generateRefreshToken(user) {
 
 // middleware
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const authHeader = req.headers["authorization"]; // take out the authorization header
+  const token = authHeader && authHeader.split(" ")[1]; // authorization header will be of Bearer token format ("Bearer {token}")
 
   if (!token) {
     return res.status(401).json({ error: "Access token missing." });
   }
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user /* data */) => {
     if (err) {
       return res.status(403).json({ error: "Invalid or expired token." });
     }
 
-    req.user = user;
+    req.user = user; // add the user data in the request object
     next();
   });
 }
